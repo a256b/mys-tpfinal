@@ -1,15 +1,6 @@
-import streamlit as st
-from simulator import EstadoSistema
+from simulacion import Simulador
 
-st.set_page_config(page_title="Simulación Fábrica Textil", layout="centered")
-
-st.title("Simulación de una Fábrica Textil")
-
-if st.button("Iniciar simulación"):
-    sistema = EstadoSistema()
-    sistema.simular()
-    st.success("Simulación finalizada")
-
-    st.subheader("Eventos registrados")
-    for tiempo, tipo in sistema.eventos_log:
-        st.text(f"{tiempo:.2f} min: {tipo}")
+if __name__ == "__main__":
+    sim = Simulador()
+    sim.iniciar_simulacion(tiempo_simulacion=900)  # 1 día laboral (900 minutos)
+    print("Simulación finalizada.")
