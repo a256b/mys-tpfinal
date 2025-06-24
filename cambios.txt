@@ -1,0 +1,51 @@
+Se hicieron cambios en el flujo de camiones para la simulacion.
+
+------------------------------------------ANTES-------------------------------------
+1. generar_camion() → Se crea un camión YA CARGADO con materia prima
+2. llegada_camion_barraca → Pesa en barraca (ya viene con carga)
+3. fin_pesaje_barraca → Va a planta
+4. llegada_camion_planta → Pesa en planta
+5. fin_pesaje_planta → Descarga materia prima e INMEDIATAMENTE inicia producción
+6. fin_produccion → El MISMO camión que trajo MP ahora se pesa para salir
+7. fin_pesaje_producto → Viaja al CD
+8. verificar_stock_barraca → Si stock < 8000, se "recarga" mágicamente
+
+
+Problemas principales del flujo original:
+
+1. Camiones nacían con carga: En generar_camion() ya se peso con carga:
+    pythoncon_carga = util.pesaje_tipo_camion(tipo)
+    camion = Camion(self.contador_camiones, tipo, sin_carga, maximo, con_carga)
+
+2. No había gestión de disponibilidad: Los camiones se generaban infinitamente hasta llegar a 15, pero después no se reutilizaban correctamente.
+
+3. Confusión entre descarga y carga de producto: Después de descargar MP, el evento fin_produccion tenía el camión como parámetro, sugiriendo que el mismo camión que descargó inmediatamente cargaba producto.
+
+4.Producción mal vinculada a camiones: La producción se iniciaba en fin_pesaje_planta pero el evento fin_produccion tenía asociado un camión específico:
+    pythonself.agregar_evento(Evento(evento.tiempo + tiempo_prod, "fin_produccion", evento.camion))
+
+5. Reabastecimiento mágico: En verificar_stock_barraca, el camión simplemente obtenía carga nueva sin proceso de carga real:
+    pythonevento.camion.peso_con_carga = util.pesaje_tipo_camion(evento.camion.tipo)
+
+
+------------------------------------------DESPUES-------------------------------------
+
+Flujo nuevo:
+
+1. Inicio → 15 camiones VACÍOS en pool de camiones_libres
+2. programar_siguiente_llegada() → Toma un camión libre, lo CARGA en barraca
+3. llegada_camion_barraca → Pesa el camión cargado
+4. fin_pesaje_barraca → Viaja a planta
+5. llegada_camion_planta → Pesa en planta
+6. fin_pesaje_planta → Descarga MP y se vacía
+7. fin_descarga → Si hay producto, lo carga; si no, vuelve al pool
+8. fin_carga_producto → Pesa antes de salir
+9. fin_pesaje_salida → Viaja al CD
+10. retorno_de_cd → Vuelve al pool de camiones libres
+
+Mejoras:
+1. Pool de camiones: Los 15 camiones existen desde el inicio y se reciclan
+2. Estados claros: Un camión está cargado (con MP o producto) o vacío
+3. Producción independiente: La producción no está atada a un camión específico
+4. Carga/descarga explícita: Se modifica peso_con_carga en momentos específicos
+5. Ciclo completo: Cada camión completa todo el circuito antes de estar disponible
