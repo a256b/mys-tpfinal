@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Agregar el path al directorio raíz si es necesario
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from simulacion import Simulador
 
@@ -37,56 +38,47 @@ if st.button("🚛 Ejecutar simulación"):
     # Panel de resumen
     col1, col2, col3 = st.columns(3)
     col1.metric("⏱ Tiempo simulado", f"{minutos_totales} min")
-    col2.metric("🚚 Producciones realizadas", sim.producciones_realizadas)
+    col2.metric("🚚 Producciones realizadas", sim.metricas["producciones_realizadas"])
     col3.metric("📦 Stock final en planta", f"{sim.stock_planta:.2f} ton")
 
     col4, col5, col6 = st.columns(3)
     col4.metric("🕓 Ocupación balanza planta", f"{(sim.balanza_planta.tiempo_ocupado / sim.tiempo_total_simulado) * 100:.2f}%")
     col5.metric("🕓 Ocupación balanza barraca", f"{(sim.balanza_barraca.tiempo_ocupado / sim.tiempo_total_simulado) * 100:.2f}%")
-    col6.metric("🔁 Camiones en cola", sim.camiones_en_espera)
+    col6.metric("🔁 Camiones esperando planta", sim.metricas["camiones_en_espera_planta"])
 
     col7, col8 = st.columns(2)
-    col7.metric("⚠️ % Tiempo sin stock", f"{(sim.tiempo_sin_stock / sim.tiempo_total_simulado) * 100:.2f}%")
+    col7.metric("🔁 Camiones esperando barraca", sim.metricas["camiones_en_espera_barraca"])
     col8.metric("💼 Total de camiones simulados", len(sim.camiones))
 
-    # Gráficos
-    labels = ["Ocup. balanza planta", "Ocup. balanza barraca", "% Tiempo sin stock"]
-    valores = [
-        (sim.balanza_planta.tiempo_ocupado / sim.tiempo_total_simulado) * 100,
-        (sim.balanza_barraca.tiempo_ocupado / sim.tiempo_total_simulado) * 100,
-        (sim.tiempo_sin_stock / sim.tiempo_total_simulado) * 100
-    ]
+    # Preparar datos para gráficos
+    falta_mp = sim.metricas["tiempo_oscioso_por_falta_mp"]
+    falta_prod = sim.metricas["tiempo_oscioso_por_falta_producto"]
+    total_oscioso = sim.metricas["tiempo_oscioso_planta"]
 
+    otro = total_oscioso - (falta_mp + falta_prod)
+    otro = max(0, otro)  # evitar valores negativos
+
+    valores = [falta_mp, falta_prod, otro]
+    labels = ["Ociosidad por falta MP", "Ociosidad por producción", "Otra ociosidad"]
+
+    total = sum(valores)
+    if total == 0:
+        valores = [1, 0, 0]
+
+    # Gráficos
     fig, ax = plt.subplots()
-    ax.bar(labels, valores, color=["#4caf50", "#2196f3", "#f44336"])
-    ax.set_ylabel("% del tiempo")
-    ax.set_title("Distribución de ocupación y pérdidas")
-    ax.set_ylim(0, 100)
+    ax.bar(labels, valores, color=["#f44336", "#ff9800", "#9e9e9e"])
+    ax.set_ylabel("Minutos")
+    ax.set_title("Ociosidad en balanza de planta")
 
     fig2, ax2 = plt.subplots()
-    ax2.pie(valores, labels=labels, autopct='%1.1f%%', colors=["#4caf50", "#2196f3", "#f44336"])
+    ax2.pie(valores, labels=labels, autopct='%1.1f%%', colors=["#f44336", "#ff9800", "#9e9e9e"])
     ax2.axis("equal")
 
-    with st.expander("Ver gráficos de resultados"):
+    with st.expander("📊 Ver gráficos de resultados"):
         st.pyplot(fig)
         st.pyplot(fig2)
 
-        st.subheader("Resultados de la simulación")
-        metricas = sim.metricas  # atributo diccionario
-
-        st.write("⏱️ Tiempo total simulado:", metricas['tiempo_total_simulado'], "minutos")
-        st.write("🏭 Producciones realizadas:", metricas['producciones_realizadas'])
-        st.write("⚠️ Tiempo sin stock (conteo):", metricas['tiempo_sin_stock'])
-        st.write("🔁 Camiones en cola:", metricas['camiones_en_espera'])
-        st.write("🚚 Camiones pesados:", metricas['camiones_pesados'])
-        st.write("📊 Uso de balanza planta:", round((metricas['balanza_planta_ocupada'] / metricas['tiempo_total_simulado']) * 100, 2), "%")
-        st.write("📊 Uso de balanza barraca:", round((metricas['balanza_barraca_ocupada'] / metricas['tiempo_total_simulado']) * 100, 2), "%")
-
-        st.subheader("📈 Producción esperada vs. real")
-        produccion_posible = metricas['tiempo_total_simulado'] // 15  # asumí 15 minutos por ciclo
-        produccion_real = metricas['producciones_realizadas']
-        faltante = produccion_posible - produccion_real
-
-        st.bar_chart(pd.DataFrame({
-            "Ciclos": [produccion_real, max(faltante, 0)]
-        }, index=["Realizados", "Perdidos"]))
+        st.subheader("📋 Resultados detallados")
+        for key, value in sim.metricas.items():
+            st.write(f"**{key.replace('_', ' ').capitalize()}:**", round(value, 2) if isinstance(value, float) else value)
