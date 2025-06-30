@@ -77,13 +77,11 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
         with col1:
             st.metric(
                 "⏱️ Tiempo simulado", 
-                f"{dias_simulacion} días",
-                f"{minutos_totales} minutos"
+                f"{dias_simulacion} días"
             )
             st.metric(
                 "📦 Producciones realizadas", 
                 sim.metricas["producciones_realizadas"],
-                f"{sim.metricas['producciones_realizadas']/(dias_simulacion*15):.1f} por hora"
             )
         
         with col2:
@@ -91,7 +89,6 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
             st.metric(
                 "⚖️ Uso balanza planta", 
                 f"{ocupacion_planta:.1f}%",
-                f"{ocupacion_planta-50:.1f}%" if ocupacion_planta > 50 else f"{ocupacion_planta-50:.1f}%"
             )
             ocupacion_barraca = (sim.balanza_barraca.tiempo_ocupado / sim.tiempo_total_simulado) * 100
             st.metric(
@@ -116,7 +113,7 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
         tiempo_productivo_planta = sim.balanza_planta.tiempo_ocupado
         
         # Crear gráficos
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             # Gráfico de torta - Uso de balanza planta
@@ -139,8 +136,33 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
                    autopct='%1.1f%%', startangle=90)
             ax1.set_title('Distribución del tiempo - Balanza Planta')
             st.pyplot(fig1)
-        
+
+        #Datos para grafico de barras de balanza carraca
+        tiempo_oscioso_barraca = sim.metricas["tiempo_oscioso_barraca"]
+        tiempo_productivo_barraca = sim.balanza_barraca.tiempo_ocupado
+
         with col2:
+            #Grafico de torta - uso de balanza en barraca
+            fig3, ax3 = plt.subplots(figsize=(8,6))
+            labels = ['Tiempo productivo', 'Tiempo oscioso', 'Otras demoras']
+            sizes = [tiempo_productivo_barraca, tiempo_oscioso_barraca]
+            colors = ['#2ecc71', '#e74c3c']
+
+            filtered_labels = []
+            filtered_sizes = []
+            filtered_colors = []
+            for label, size, color in zip(labels, sizes, colors):
+                if size > 0.01 * sum(sizes):  # Solo mostrar si es más del 1%
+                    filtered_labels.append(label)
+                    filtered_sizes.append(size)
+                    filtered_colors.append(color)
+
+            ax3.pie(filtered_sizes, labels=filtered_labels, colors=filtered_colors, autopct='%1.1f%%', startangle=90)
+            ax3.set_title('Distribucion del tiempo - Balanza Barraca')
+            st.pyplot(fig3)
+
+        
+        with col3:
             # Gráfico de barras - Comparación de ociosidad
             fig2, ax2 = plt.subplots(figsize=(8, 6))
             
@@ -188,7 +210,6 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
                 st.metric(
                     "Ociosidad por falta de materia prima",
                     f"{tiempo_sin_mp:.0f} min",
-                    f"{porcentaje_sin_mp:.1f}% del tiempo ocioso"
                 )
             else:
                 st.metric("Ociosidad por falta de materia prima", "0 min")
@@ -199,16 +220,9 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
                 st.metric(
                     "Ociosidad por otras causas",
                     f"{tiempo_otros:.0f} min",
-                    f"{porcentaje_otros:.1f}% del tiempo ocioso"
                 )
             else:
                 st.metric("Ociosidad por otras causas", "0 min")
-        
-        # Insight
-        if tiempo_sin_mp > tiempo_otros:
-            st.warning("⚠️ La principal causa de ociosidad es la falta de materia prima. Considere aumentar la frecuencia de llegada de camiones.")
-        elif tiempo_otros > tiempo_sin_mp and tiempo_otros > 0:
-            st.info("ℹ️ La ociosidad se debe principalmente a la falta de sincronización entre procesos.")
     
     with tab3:
         st.subheader("📋 Resultados detallados")
@@ -228,17 +242,6 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
         
         st.dataframe(metricas_df, use_container_width=True, hide_index=True)
         
-        # Recomendaciones
-        st.subheader("💡 Recomendaciones")
-        
-        if ocupacion_planta < 60:
-            st.write("- La balanza de planta está subutilizada. Considere reducir el tiempo entre llegadas de camiones.")
-        
-        if tiempo_sin_mp > 100:
-            st.write("- Se detectó tiempo significativo sin materia prima. Aumente la frecuencia de reabastecimiento.")
-        
-        if sim.metricas["camiones_en_espera_planta"] > 3:
-            st.write("- Se forman colas en la planta. Considere optimizar los tiempos de pesaje o agregar una balanza.")
 
 # Información adicional en el sidebar
 st.sidebar.markdown("---")
@@ -248,13 +251,4 @@ st.sidebar.markdown("""
 - **Materia prima por ciclo**: 1 tonelada
 - **Capacidad máxima barraca**: 20,000 ton
 - **Umbral reposición**: 8,000 ton
-""")
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🎲 Distribuciones utilizadas")
-st.sidebar.markdown("""
-- **Llegadas**: Exponencial
-- **Pesaje**: Normal (11±3 min)
-- **Producción**: Exponencial (15 min)
-- **Viajes**: Normal (según tipo)
 """)
