@@ -1,0 +1,368 @@
+(venv) PS C:\Users\Usuario\Desktop\Sistemas\5to\Modelos\mys-tpfinal2\mys-tpfinal> streamlit run interfaz/app.py                                            
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8502
+  Network URL: http://192.168.0.102:8502
+
+[10.17] Llegada de camión 0 tipo 4 a la barraca (carga: 5.5 ton)
+[22.00] Fin pesaje barraca camión 0
+[38.37] Llegada de camión 3 tipo 4 a la barraca (carga: 7.2 ton)
+[41.48] Llegada de camión 0 tipo 4 a la planta
+[47.49] Fin pesaje barraca camión 3
+[54.23] Fin de pesaje planta camión 0
+[54.23] Descargando 5.5 ton. Stock planta: 10005.5 ton
+[60.31] Llegada de camión 6 tipo 3 a la barraca (carga: 5.2 ton)
+[61.19] Fin de producción
+[73.89] Llegada de camión 3 tipo 4 a la planta
+[75.57] Fin pesaje barraca camión 6
+[77.79] Llegada de camión 6 tipo 3 a la planta
+[83.07] Fin de pesaje planta camión 3
+[83.07] Descargando 7.2 ton. Stock planta: 10010.7 ton
+[89.23] Fin descarga camión 0
+[94.25] Fin de pesaje planta camión 6
+[94.25] Descargando 5.2 ton. Stock planta: 10014.9 ton
+[95.68] Llegada de camión 9 tipo 4 a la barraca (carga: 7.5 ton)
+[97.05] Fin de producción
+[99.51] Fin pesaje barraca camión 9
+[101.32] Llegada de camión 8 tipo 2 a la barraca (carga: 2.5 ton)
+[101.93] Fin de producción
+[104.58] Fin de producción
+[109.27] Fin de producción
+[109.60] Fin pesaje barraca camión 8
+[110.10] Fin de producción
+[112.17] Fin de producción
+[115.91] Llegada de camión 11 tipo 2 a la barraca (carga: 1.9 ton)
+[116.53] Fin de producción
+[117.76] Llegada de camión 10 tipo 2 a la barraca (carga: 2.6 ton)
+[118.07] Fin descarga camión 3
+[118.32] Llegada de camión 9 tipo 4 a la planta
+[119.43] Fin de producción
+[122.25] Fin descarga camión 6
+[123.08] Llegada de camión 8 tipo 2 a la planta
+[123.57] Fin de producción
+[124.23] Fin carga producto camión 0
+[126.12] Fin de pesaje planta camión 9
+[126.12] Descargando 7.5 ton. Stock planta: 10012.3 ton
+[128.84] Fin pesaje barraca camión 11
+[129.90] Fin de producción
+[133.34] Fin de producción
+[134.22] Fin de producción
+[134.69] Fin de pesaje planta camión 8
+[134.69] Descargando 2.5 ton. Stock planta: 10010.8 ton
+[134.75] Fin pesaje barraca camión 10
+[139.95] Llegada de camión 12 tipo 1 a la barraca (carga: 4.5 ton)
+[144.59] Fin de pesaje planta camión 0
+[144.59] Descargando 1.0 ton. Stock planta: 10010.8 ton
+[144.97] Fin de producción
+[150.25] Fin carga producto camión 6
+[151.36] Llegada de camión 11 tipo 2 a la planta
+[151.63] Fin de producción
+[153.07] Fin carga producto camión 3
+[153.16] Fin pesaje barraca camión 12
+[154.13] Fin de producción
+[154.23] Fin de producción
+[154.69] Fin descarga camión 8
+[154.71] Fin de producción
+[154.84] Fin de producción
+[155.96] Fin de producción
+[158.56] Fin de producción
+[159.00] Fin de producción
+[160.30] Fin de producción
+[160.96] Fin pesaje salida camión 6
+[161.12] Fin descarga camión 9
+[161.89] Fin de producción
+[162.92] Fin de producción
+[163.76] Fin de producción
+[166.65] Llegada de camión 10 tipo 2 a la planta
+[168.29] Llegada de camión 12 tipo 1 a la planta
+[169.01] Fin de producción
+[171.41] Fin de producción
+[174.00] Fin de producción
+[174.69] Fin carga producto camión 8
+[174.89] Fin pesaje salida camión 11
+[175.69] Fin de producción
+[179.59] Fin descarga camión 0
+[183.16] Fin de producción
+[185.55] Fin de producción
+[187.73] Fin pesaje salida camión 3
+[187.93] Fin de producción
+[188.56] Fin de producción
+[189.10] Fin de producción
+[189.61] Retorno de CD camión 6
+[191.35] Fin de producción
+[191.70] Fin de producción
+[193.39] Fin de producción
+[196.12] Fin carga producto camión 9
+[196.15] Fin de producción
+[199.16] Fin de producción
+[201.08] Fin pesaje salida camión 10
+[201.27] Fin de producción
+[203.96] Llegada de camión 14 tipo 3 a la barraca (carga: 3.6 ton)
+[204.26] Retorno de CD camión 11
+[209.18] Fin de producción
+[209.58] Fin de producción
+[209.58] Fin de producción
+[210.73] Fin de producción
+[212.95] Fin de producción
+[214.40] Fin pesaje salida camión 12
+[214.59] Fin carga producto camión 0
+[215.24] Fin pesaje barraca camión 14
+[216.03] Fin de producción
+[217.63] Fin de producción
+[222.37] Llegada de camión 6 tipo 3 a la barraca (carga: 4.9 ton)
+[223.61] Llegada de camión 14 tipo 3 a la planta
+[223.97] Fin de producción
+[224.67] Retorno de CD camión 3
+[225.67] Fin de producción
+[226.77] Llegada de camión 3 tipo 4 a la barraca (carga: 4.9 ton)
+[226.81] Fin pesaje salida camión 8
+[226.83] Fin de producción
+[227.28] Fin de producción
+[227.48] Fin de producción
+[228.92] Retorno de CD camión 10
+[229.06] Fin pesaje barraca camión 6
+[229.74] Llegada de camión 13 tipo 3 a la barraca (carga: 7.0 ton)
+[231.96] Fin de producción
+[232.16] Fin de producción
+[236.90] Fin pesaje salida camión 9
+[238.01] Fin de producción
+[238.96] Fin de producción
+[239.16] Fin pesaje barraca camión 3
+[241.70] Fin de producción
+[243.23] Fin de producción
+[243.31] Fin de producción
+[244.26] Retorno de CD camión 12
+[244.92] Fin de producción
+[244.98] Fin de producción
+[246.92] Llegada de camión 12 tipo 1 a la barraca (carga: 7.0 ton)
+[247.74] Fin pesaje barraca camión 13
+[247.76] Llegada de camión 11 tipo 2 a la barraca (carga: 5.0 ton)
+[250.36] Fin pesaje salida camión 0
+[253.54] Fin de producción
+[254.59] Fin pesaje barraca camión 12
+[255.42] Fin de producción
+[256.97] Llegada de camión 6 tipo 3 a la planta
+[257.66] Fin pesaje salida camión 14
+[258.28] Fin de producción
+[258.42] Retorno de CD camión 8
+[262.09] Fin de producción
+[266.55] Fin de producción
+[268.82] Llegada de camión 10 tipo 2 a la barraca (carga: 5.0 ton)
+[271.79] Retorno de CD camión 0
+[273.22] Fin pesaje barraca camión 11
+[273.32] Llegada de camión 12 tipo 1 a la planta
+[274.35] Llegada de camión 11 tipo 2 a la planta
+[275.81] Fin de producción
+[275.88] Llegada de camión 3 tipo 4 a la planta
+[275.89] Fin pesaje salida camión 6
+[277.98] Llegada de camión 13 tipo 3 a la planta
+[278.43] Fin de producción
+[279.68] Fin de producción
+[280.70] Fin de producción
+[283.89] Retorno de CD camión 9
+[283.95] Fin de producción
+[283.96] Fin pesaje barraca camión 10
+[284.53] Llegada de camión 10 tipo 2 a la planta
+[287.26] Fin pesaje salida camión 12
+[288.13] Fin de producción
+[290.82] Llegada de camión 0 tipo 4 a la barraca (carga: 6.3 ton)
+[290.88] Fin de producción
+[295.03] Fin de producción
+[296.07] Fin de producción
+[296.64] Fin de producción
+[296.65] Retorno de CD camión 14
+[296.80] Fin pesaje salida camión 11
+[297.46] Fin pesaje barraca camión 0
+[300.55] Fin de producción
+[301.70] Llegada de camión 0 tipo 4 a la planta
+[302.87] Fin de producción
+[305.99] Fin de producción
+[306.29] Fin pesaje salida camión 3
+[308.03] Retorno de CD camión 6
+[309.60] Fin de producción
+[309.63] Fin de producción
+[310.59] Retorno de CD camión 12
+[311.45] Fin de producción
+[311.65] Llegada de camión 14 tipo 3 a la barraca (carga: 1.3 ton)
+[313.40] Fin pesaje salida camión 13
+[314.67] Llegada de camión 9 tipo 4 a la barraca (carga: 4.4 ton)
+[315.01] Fin de producción
+[316.06] Fin de producción
+[317.70] Fin de producción
+[318.47] Llegada de camión 6 tipo 3 a la barraca (carga: 2.7 ton)
+[322.14] Fin pesaje barraca camión 14
+[322.55] Llegada de camión 12 tipo 1 a la barraca (carga: 7.0 ton)
+[324.73] Llegada de camión 14 tipo 3 a la planta
+[325.30] Fin de producción
+[325.41] Fin de producción
+[325.93] Fin de producción
+[326.19] Fin pesaje salida camión 10
+[330.20] Fin de producción
+[331.94] Fin pesaje barraca camión 9
+[332.42] Fin pesaje salida camión 0
+[332.51] Retorno de CD camión 11
+[333.22] Llegada de camión 11 tipo 2 a la barraca (carga: 4.0 ton)
+[335.80] Retorno de CD camión 3
+[337.49] Fin de producción
+[339.00] Fin de producción
+[339.60] Fin de producción
+[339.70] Llegada de camión 9 tipo 4 a la planta
+[340.39] Fin de producción
+[342.54] Fin pesaje barraca camión 6
+[342.99] Fin pesaje salida camión 14
+[343.03] Fin de producción
+[343.54] Llegada de camión 6 tipo 3 a la planta
+[343.59] Fin de producción
+[344.56] Fin de producción
+[346.48] Fin de producción
+[347.19] Fin de producción
+[347.34] Retorno de CD camión 13
+[348.41] Fin de producción
+[349.44] Fin de producción
+[350.01] Fin de producción
+[352.01] Fin de producción
+[353.05] Fin de producción
+[353.33] Fin de producción
+[353.72] Fin de producción
+[353.79] Retorno de CD camión 10
+[354.04] Llegada de camión 3 tipo 4 a la barraca (carga: 4.8 ton)
+[354.65] Fin pesaje salida camión 9
+[356.24] Fin de producción
+[357.27] Fin de producción
+[358.65] Fin pesaje barraca camión 12
+[360.50] Fin de producción
+[361.81] Fin de producción
+[365.56] Fin pesaje salida camión 6
+[365.61] Llegada de camión 12 tipo 1 a la planta
+[365.75] Fin de producción
+[365.96] Fin de producción
+[366.27] Llegada de camión 13 tipo 3 a la barraca (carga: 1.7 ton)
+[366.70] Fin de producción
+[370.97] Fin de producción
+[371.10] Fin pesaje barraca camión 11
+[371.76] Llegada de camión 11 tipo 2 a la planta
+[373.38] Fin de pesaje planta camión 12
+[373.38] Descargando 7.0 ton. Stock planta: 9915.8 ton
+[373.93] Retorno de CD camión 9
+[374.36] Fin de producción
+[374.64] Fin de producción
+[375.59] Retorno de CD camión 0
+[375.86] Fin de producción
+[376.13] Fin de producción
+[376.44] Llegada de camión 0 tipo 4 a la barraca (carga: 7.6 ton)
+[376.78] Llegada de camión 10 tipo 2 a la barraca (carga: 5.0 ton)
+[377.96] Fin de producción
+[380.40] Fin de producción
+[382.32] Fin de pesaje planta camión 11
+[382.32] Descargando 4.0 ton. Stock planta: 9912.9 ton
+[386.40] Retorno de CD camión 14
+[388.03] Fin pesaje barraca camión 3
+[388.98] Fin de producción
+[393.22] Fin de producción
+[394.97] Fin de producción
+[395.82] Fin de producción
+[395.90] Fin de producción
+[396.38] Fin descarga camión 12
+[396.50] Fin de producción
+[397.00] Fin pesaje barraca camión 13
+[398.15] Retorno de CD camión 6
+[399.39] Llegada de camión 14 tipo 3 a la barraca (carga: 4.4 ton)
+[400.78] Llegada de camión 9 tipo 4 a la barraca (carga: 6.2 ton)
+[402.32] Fin descarga camión 11
+[402.62] Fin de producción
+[405.23] Fin de producción
+[406.95] Llegada de camión 13 tipo 3 a la planta
+[407.13] Llegada de camión 3 tipo 4 a la planta
+[407.19] Fin de producción
+[407.20] Fin de producción
+[409.93] Fin de producción
+[410.09] Fin de producción
+[411.68] Fin pesaje barraca camión 0
+[414.43] Fin de producción
+[414.45] Fin de producción
+[415.57] Fin de producción
+[418.85] Fin de producción
+[419.38] Fin carga producto camión 12
+[419.79] Fin de pesaje planta camión 13
+[419.79] Descargando 1.7 ton. Stock planta: 9897.6 ton
+[420.40] Fin de producción
+[420.69] Fin de producción
+[422.32] Fin carga producto camión 11
+[423.07] Llegada de camión 0 tipo 4 a la planta
+[423.77] Fin pesaje barraca camión 10
+[426.86] Fin de producción
+[427.03] Fin de producción
+[430.73] Fin de producción
+[431.71] Fin de producción
+[433.03] Fin de producción
+[433.60] Fin de producción
+[434.48] Llegada de camión 10 tipo 2 a la planta
+[435.18] Fin de producción
+[435.67] Fin de producción
+[436.86] Fin de producción
+[437.04] Fin pesaje barraca camión 14
+[437.43] Fin de pesaje planta camión 3
+[437.43] Descargando 4.8 ton. Stock planta: 9890.4 ton
+[438.20] Fin de producción
+[439.66] Llegada de camión 14 tipo 3 a la planta
+[439.83] Fin de producción
+[441.61] Llegada de camión 6 tipo 3 a la barraca (carga: 1.5 ton)
+[444.23] Fin de producción
+[444.87] Fin de pesaje planta camión 12
+[444.87] Descargando 7.0 ton. Stock planta: 9893.4 ton
+[444.90] Fin de producción
+[444.98] Fin de producción
+[447.79] Fin descarga camión 13
+[448.56] Fin de producción
+[451.00] Fin de producción
+[451.70] Fin de producción
+[452.28] Fin de producción
+[452.38] Fin de producción
+[452.49] Fin de producción
+[453.09] Fin pesaje barraca camión 9
+[453.95] Fin de producción
+[454.54] Llegada de camión 9 tipo 4 a la planta
+[454.71] Fin de producción
+[454.76] Fin de producción
+[455.31] Fin de producción
+[455.39] Fin de pesaje planta camión 11
+[455.39] Descargando 5.0 ton. Stock planta: 9885.4 ton
+[457.55] Fin de producción
+[462.54] Fin de producción
+[463.03] Fin de producción
+[463.05] Fin de producción
+[465.44] Fin de pesaje planta camión 0
+[465.44] Descargando 7.6 ton. Stock planta: 9888.0 ton
+[466.54] Fin pesaje barraca camión 6
+[467.12] Fin de producción
+[467.87] Fin descarga camión 12
+[469.91] Fin de producción
+[470.12] Fin de producción
+[470.30] Fin de producción
+[470.67] Fin de producción
+[471.11] Fin de producción
+[472.43] Fin descarga camión 3
+[473.54] Fin de producción
+[473.66] Fin de producción
+[474.21] Fin de producción
+[475.19] Fin de producción
+[475.39] Fin descarga camión 11
+[475.79] Fin carga producto camión 13
+[477.56] Llegada de camión 6 tipo 3 a la planta
+[477.60] Fin de pesaje planta camión 10
+[477.60] Descargando 5.0 ton. Stock planta: 9882.0 ton
+[477.77] Fin de producción
+[479.20] Fin de producción
+[480.64] Fin de producción
+
+=== MÉTRICAS FINALES ===
+Tiempo sin materia prima en planta: 0.00 min
+Tiempo oscioso balanza barraca: 165.23 min
+Tiempo oscioso balanza planta: 117.95 min
+Producciones realizadas: 179
+Materia prima consumida: 253.2 ton
+Stock final planta: 9878.00 ton
+Stock final barraca: 19868.76 ton
+Producto terminado disponible: 109.0 ton
+Camiones libres al final: 0

@@ -41,7 +41,7 @@ camiones_totales = st.sidebar.slider(
 
 dias_simulacion = st.sidebar.slider(
     "Cantidad de días a simular", 
-    1, 30, 1,
+    1, 300, 1,
     help="Cada día tiene 15 horas de operación (5am-8pm)"
 )
 
@@ -105,15 +105,24 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
             st.metric("🚛 Camiones en espera (barraca)", sim.metricas["camiones_en_espera_barraca"])
     
     with tab2:
-        st.subheader("Análisis de Tiempo Ocioso")
+        st.subheader("Análisis de Tiempo Ocioso y Demoras")
         
         # Preparar datos para gráficos
         tiempo_sin_mp = sim.metricas["tiempo_oscioso_por_falta_mp"]
         tiempo_otros = max(0, sim.metricas["tiempo_oscioso_planta"] - tiempo_sin_mp)
         tiempo_productivo_planta = sim.balanza_planta.tiempo_ocupado
-        
+
+        tiempo_oscioso_barraca = sim.metricas["tiempo_oscioso_barraca"]
+        tiempo_productivo_barraca = sim.balanza_barraca.tiempo_ocupado
+
+        # Nuevas métricas de demoras
+        tiempo_barraca = sim.metricas.get("tiempo_demora_barraca", 0)
+        tiempo_planta_mp = sim.metricas.get("tiempo_demora_planta_mp", 0)
+        tiempo_planta_prod = sim.metricas.get("tiempo_demora_planta_prod", 0)
+        tiempo_total_demoras = sim.metricas.get("tiempo_total_demora", 0)
+
         # Crear gráficos
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         
         with col1:
             # Gráfico de torta - Uso de balanza planta
@@ -122,28 +131,23 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
             sizes = [tiempo_productivo_planta, tiempo_sin_mp, tiempo_otros]
             colors = ['#2ecc71', '#e74c3c', '#f39c12']
             
-            # Filtrar valores muy pequeños
             filtered_labels = []
             filtered_sizes = []
             filtered_colors = []
             for label, size, color in zip(labels, sizes, colors):
-                if size > 0.01 * sum(sizes):  # Solo mostrar si es más del 1%
+                if size > 0.01 * sum(sizes):
                     filtered_labels.append(label)
                     filtered_sizes.append(size)
                     filtered_colors.append(color)
             
             ax1.pie(filtered_sizes, labels=filtered_labels, colors=filtered_colors, 
-                   autopct='%1.1f%%', startangle=90)
+                autopct='%1.1f%%', startangle=90)
             ax1.set_title('Distribución del tiempo - Balanza Planta')
             st.pyplot(fig1)
 
-        #Datos para grafico de barras de balanza carraca
-        tiempo_oscioso_barraca = sim.metricas["tiempo_oscioso_barraca"]
-        tiempo_productivo_barraca = sim.balanza_barraca.tiempo_ocupado
-
-        with col2:
+        with col1:
             #Grafico de torta - uso de balanza en barraca
-            fig3, ax3 = plt.subplots(figsize=(8,6))
+            fig2, ax2 = plt.subplots(figsize=(8,6))
             labels = ['Tiempo productivo', 'Tiempo oscioso', 'Otras demoras']
             sizes = [tiempo_productivo_barraca, tiempo_oscioso_barraca]
             colors = ['#2ecc71', '#e74c3c']
@@ -157,16 +161,36 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
                     filtered_sizes.append(size)
                     filtered_colors.append(color)
 
-            ax3.pie(filtered_sizes, labels=filtered_labels, colors=filtered_colors, autopct='%1.1f%%', startangle=90)
-            ax3.set_title('Distribucion del tiempo - Balanza Barraca')
+            ax2.pie(filtered_sizes, labels=filtered_labels, colors=filtered_colors, autopct='%1.1f%%', startangle=90)
+            ax2.set_title('Distribucion del tiempo - Balanza Barraca')
+            st.pyplot(fig2)
+
+        with col2:
+            # Gráfico de torta - Distribución de demoras
+            fig3, ax3 = plt.subplots(figsize=(8,6))
+            labels = [
+                "Barraca - Pesaje MP",
+                "Planta - Pesaje MP",
+                "Planta - Pesaje producto"
+            ]
+            sizes = [tiempo_barraca, tiempo_planta_mp, tiempo_planta_prod]
+            colors = ['#3498db', '#2ecc71', '#e74c3c']
+            
+            ax3.pie(
+                sizes,
+                labels=labels,
+                colors=colors,
+                autopct=lambda pct: f"{pct:.1f}%" if pct > 0 else "",
+                startangle=90
+            )
+            ax3.set_title("Distribución de demoras en balanzas")
             st.pyplot(fig3)
 
-        
-        with col3:
-            # Gráfico de barras - Comparación de ociosidad
-            fig2, ax2 = plt.subplots(figsize=(8, 6))
+        with col2:
+            # Gráfico de barras - Comparación uso de balanzas
+            fig4, ax4 = plt.subplots(figsize=(8,6))
             
-            categorias = ['Balanza\nPlanta', 'Balanza\nBarraca']
+            categorias = ['Balanza Planta', 'Balanza Barraca']
             tiempos_uso = [
                 (sim.balanza_planta.tiempo_ocupado / sim.tiempo_total_simulado) * 100,
                 (sim.balanza_barraca.tiempo_ocupado / sim.tiempo_total_simulado) * 100
@@ -176,54 +200,53 @@ if st.button("🚀 Ejecutar simulación", type="primary"):
             x = range(len(categorias))
             width = 0.35
             
-            bars1 = ax2.bar([i - width/2 for i in x], tiempos_uso, width, 
-                           label='En uso', color='#2ecc71')
-            bars2 = ax2.bar([i + width/2 for i in x], tiempos_ocio, width,
-                           label='Ocioso', color='#e74c3c')
+            bars1 = ax4.bar([i - width/2 for i in x], tiempos_uso, width,
+                            label='En uso', color='#2ecc71')
+            bars2 = ax4.bar([i + width/2 for i in x], tiempos_ocio, width,
+                            label='Ocioso', color='#e74c3c')
             
-            ax2.set_ylabel('Porcentaje (%)')
-            ax2.set_title('Comparación de uso de balanzas')
-            ax2.set_xticks(x)
-            ax2.set_xticklabels(categorias)
-            ax2.legend()
-            ax2.set_ylim(0, 100)
+            ax4.set_ylabel('Porcentaje (%)')
+            ax4.set_title('Comparación uso de balanzas')
+            ax4.set_xticks(x)
+            ax4.set_xticklabels(categorias)
+            ax4.legend()
+            ax4.set_ylim(0, 100)
             
-            # Agregar valores en las barras
             for bars in [bars1, bars2]:
                 for bar in bars:
                     height = bar.get_height()
-                    ax2.annotate(f'{height:.1f}%',
-                               xy=(bar.get_x() + bar.get_width() / 2, height),
-                               xytext=(0, 3),
-                               textcoords="offset points",
-                               ha='center', va='bottom')
-            
-            st.pyplot(fig2)
-        
+                    ax4.annotate(f'{height:.1f}%',
+                                xy=(bar.get_x() + bar.get_width() / 2, height),
+                                xytext=(0,3),
+                                textcoords="offset points",
+                                ha='center', va='bottom')
+            st.pyplot(fig4)
+
         # Métricas adicionales
         st.subheader("📊 Análisis detallado de demoras")
         
-        col1, col2 = st.columns(2)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
-            if sim.metricas["tiempo_oscioso_planta"] > 0:
-                porcentaje_sin_mp = (tiempo_sin_mp / sim.metricas["tiempo_oscioso_planta"]) * 100
-                st.metric(
-                    "Ociosidad por falta de materia prima",
-                    f"{tiempo_sin_mp:.0f} min",
-                )
-            else:
-                st.metric("Ociosidad por falta de materia prima", "0 min")
-        
+            st.metric(
+                "⏳ Tiempo total de demoras",
+                f"{tiempo_total_demoras:.1f} min"
+            )
         with col2:
-            if sim.metricas["tiempo_oscioso_planta"] > 0:
-                porcentaje_otros = (tiempo_otros / sim.metricas["tiempo_oscioso_planta"]) * 100
-                st.metric(
-                    "Ociosidad por otras causas",
-                    f"{tiempo_otros:.0f} min",
-                )
-            else:
-                st.metric("Ociosidad por otras causas", "0 min")
-    
+            st.metric(
+                "Demoras Barraca (Pesaje MP)",
+                f"{tiempo_barraca:.1f} min"
+            )
+        with col3:
+            st.metric(
+                "Demoras Planta (Pesaje MP)",
+                f"{tiempo_planta_mp:.1f} min"
+            )
+        with col4:
+            st.metric(
+                "Demoras Planta (Pesaje producto)",
+                f"{tiempo_planta_prod:.1f} min"
+            )
+
     with tab3:
         st.subheader("📋 Resultados detallados")
         

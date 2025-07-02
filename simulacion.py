@@ -26,6 +26,7 @@ class Simulador:
         self.tiempo_sin_materia_prima = 0  # Tiempo que la planta no puede producir por falta de MP
         self.ultima_vez_sin_mp = 0
         self.planta_sin_mp = False
+        self.demoras = []  # Cada elemento será (inicio, fin, motivo)
         
         self.camiones_en_espera_planta = 0
         self.camiones_en_espera_barraca = 0
@@ -43,15 +44,15 @@ class Simulador:
         self.tiempo_total_simulado = tiempo_simulacion
         
         # Crear todos los camiones al inicio
-        for i in range(self.camiones_totales):
-            tipo, sin_carga, maximo = util.seleccionar_tipo_camion()
-            camion = Camion(i, tipo, sin_carga, maximo, sin_carga)  # Inicialmente sin carga
-            self.camiones.append(camion)
-            self.camiones_libres.append(camion)
+        if self.contador_camiones < self.camiones_totales:
+            for i in range(self.camiones_totales):
+                tipo, sin_carga, maximo = util.seleccionar_tipo_camion()
+                camion = Camion(i, tipo, sin_carga, maximo, sin_carga)  # Inicialmente sin carga
+                self.camiones.append(camion)
+                self.camiones_libres.append(camion)
         
         # Programar múltiples llegadas iniciales para distribuir mejor los camiones
-        for i in range(min(3, len(self.camiones_libres))):  # Iniciar con hasta 3 camiones
-            self.programar_siguiente_llegada()
+        self.programar_siguiente_llegada()
         
         # Programar revisiones periódicas de camiones libres
         tiempo_revision = util.tiempo_entre_llegadas(self.tiempo_llegadas)
@@ -111,11 +112,16 @@ class Simulador:
             self.balanza_barraca.liberar(evento.tiempo)
             
             # Enviar a planta
-            self.agregar_evento(Evento(evento.tiempo + 5, "llegada_camion_planta", evento.camion))
+            tiempo_llegada = self.tiempo_actual + util.tiempo_entre_llegadas(self.tiempo_llegadas)
+            self.agregar_evento(Evento(tiempo_llegada, "llegada_camion_planta", evento.camion))
             
             # Atender siguiente en cola
             if self.colas_barraca:
                 proximo = self.colas_barraca.pop(0)
+                for demora in self.demoras:
+                    if demora["camion"] == proximo and "fin" not in demora:
+                        demora["fin"] = self.tiempo_actual
+                        break
                 self.balanza_barraca.ocupar(evento.tiempo)
                 duracion = util.tiempo_pesaje()
                 self.agregar_evento(Evento(evento.tiempo + duracion, "fin_pesaje_barraca", proximo))
@@ -134,13 +140,17 @@ class Simulador:
             tiempo_descarga = util.tiempo_carga(evento.camion.tipo)
             self.agregar_evento(Evento(evento.tiempo + tiempo_descarga, "fin_descarga", evento.camion))
             
-            # Iniciar producción si hay suficiente materia prima y no hay muchas en curso
-            if self.stock_planta >= 1 and self.producciones_en_curso < 3:
+            # Iniciar producción si hay suficiente materia prima
+            if self.stock_planta >= 1:
                 self.iniciar_produccion()
             
             # Atender siguiente en cola
             if self.colas_planta:
                 proximo = self.colas_planta.pop(0)
+                for demora in self.demoras:
+                    if demora["camion"] == proximo and "fin" not in demora:
+                        demora["fin"] = self.tiempo_actual
+                        break
                 self.balanza_planta.ocupar(evento.tiempo)
                 duracion = util.tiempo_pesaje()
                 self.agregar_evento(Evento(evento.tiempo + duracion, "fin_pesaje_planta", proximo))
@@ -167,23 +177,25 @@ class Simulador:
         elif evento.tipo == "fin_produccion":
             print(f"[{evento.tiempo:.2f}] Fin de producción")
             self.producciones_en_curso -= 1
+            self.producciones_realizadas += 1
             self.producto_terminado_disponible += 1  # 1 tonelada de producto
             
-            # Continuar produciendo si hay materia prima y capacidad
-            if self.stock_planta >= 1 and self.producciones_en_curso < 3:
+            # Continuar produciendo si hay materia prima
+            if self.stock_planta >= 1:
                 self.iniciar_produccion()
 
         elif evento.tipo == "fin_carga_producto":
             print(f"[{evento.tiempo:.2f}] Fin carga producto camión {evento.camion.id}")
             
+            self.generar_pesaje(self.balanza_planta, evento)
             # Pesar antes de salir
-            if self.balanza_planta.libre:
-                self.balanza_planta.ocupar(self.tiempo_actual)
-                duracion = util.tiempo_pesaje()
-                self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_salida", evento.camion))
-            else:
-                self.colas_planta.append(evento.camion)
-                self.camiones_en_espera_planta += 1
+            # if self.balanza_planta.libre:
+            #     self.balanza_planta.ocupar(self.tiempo_actual)
+            #     duracion = util.tiempo_pesaje()
+            #     self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_salida", evento.camion))
+            # else:
+            #     self.colas_planta.append(evento.camion)
+            #     self.camiones_en_espera_planta += 1
 
         elif evento.tipo == "fin_pesaje_salida":
             print(f"[{evento.tiempo:.2f}] Fin pesaje salida camión {evento.camion.id}")
@@ -196,16 +208,20 @@ class Simulador:
             # Atender siguiente en cola
             if self.colas_planta:
                 proximo = self.colas_planta.pop(0)
+                for demora in self.demoras:
+                    if demora["camion"] == proximo and "fin" not in demora:
+                        demora["fin"] = self.tiempo_actual
+                        break
                 self.balanza_planta.ocupar(evento.tiempo)
                 duracion = util.tiempo_pesaje()
                 
                 # Determinar tipo de pesaje según el peso del camión
-                if proximo.peso_con_carga > proximo.peso_sin_carga:
-                    tipo_evento = "fin_pesaje_salida"
-                else:
-                    tipo_evento = "fin_pesaje_planta"
+                # if proximo.peso_con_carga > proximo.peso_sin_carga:
+                #     tipo_evento = "fin_pesaje_salida"
+                # else:
+                #     tipo_evento = "fin_pesaje_planta"
                 
-                self.agregar_evento(Evento(evento.tiempo + duracion, tipo_evento, proximo))
+                self.agregar_evento(Evento(evento.tiempo + duracion, "fin_pesaje_salida", proximo))
 
         elif evento.tipo == "retorno_de_cd":
             print(f"[{evento.tiempo:.2f}] Retorno de CD camión {evento.camion.id}")
@@ -240,12 +256,10 @@ class Simulador:
 
     def iniciar_produccion(self):
         """Inicia un ciclo de producción si hay materia prima"""
-        if self.stock_planta >= 1 and self.producciones_en_curso < 5:
-            self.stock_planta -= 1  # Consumir 1 tonelada
-            self.producciones_en_curso += 1
-            self.producciones_realizadas += 1
-            tiempo_prod = util.tiempo_produccion()
-            self.agregar_evento(Evento(self.tiempo_actual + tiempo_prod, "fin_produccion", None))
+        self.stock_planta -= 1  # Consumir 1 tonelada
+        self.producciones_en_curso += 1
+        tiempo_prod = util.tiempo_produccion()
+        self.agregar_evento(Evento(self.tiempo_actual + tiempo_prod, "fin_produccion", None))
 
     def generar_pesaje(self, balanza, evento):
         if balanza.nombre == 'barraca':
@@ -254,32 +268,79 @@ class Simulador:
                 duracion = util.tiempo_pesaje()
                 self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_barraca", evento.camion))
             else:
+                # REGISTRA DEMORA
+                self.demoras.append({
+                    "inicio": self.tiempo_actual,
+                    "camion": evento.camion,
+                    "motivo": "barraca_pesaje_materia_prima"
+                })
                 self.colas_barraca.append(evento.camion)
                 self.camiones_en_espera_barraca += 1
 
         elif balanza.nombre == 'planta':
-            if self.balanza_planta.libre:
-                self.balanza_planta.ocupar(self.tiempo_actual)
-                duracion = util.tiempo_pesaje()
-                self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_planta", evento.camion))
+            # Determinar qué está esperando pesar
+            if evento.tipo == "fin_carga_producto":
+                if self.balanza_planta.libre:
+                    self.balanza_planta.ocupar(self.tiempo_actual)
+                    duracion = util.tiempo_pesaje()
+                    self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_salida", evento.camion))
+                else:
+                    # REGISTRA DEMORA
+                    self.demoras.append({
+                        "inicio": self.tiempo_actual,
+                        "camion": evento.camion,
+                        "motivo": "planta_pesaje_producto"
+                    })
+                    self.colas_planta.append(evento.camion)
+                    self.camiones_en_espera_planta += 1
             else:
-                self.colas_planta.append(evento.camion)
-                self.camiones_en_espera_planta += 1
+                if self.balanza_planta.libre:
+                    self.balanza_planta.ocupar(self.tiempo_actual)
+                    duracion = util.tiempo_pesaje()
+                    self.agregar_evento(Evento(self.tiempo_actual + duracion, "fin_pesaje_planta", evento.camion))
+                else:
+                    # REGISTRA DEMORA
+                    self.demoras.append({
+                        "inicio": self.tiempo_actual,
+                        "camion": evento.camion,
+                        "motivo": "planta_pesaje_materia_prima"
+                    })
+                    self.colas_planta.append(evento.camion)
+                    self.camiones_en_espera_planta += 1
 
     def calcular_metricas_finales(self):
         tiempo_oscioso_barraca = self.tiempo_total_simulado - self.balanza_barraca.tiempo_ocupado
         tiempo_oscioso_planta = self.tiempo_total_simulado - self.balanza_planta.tiempo_ocupado
-        
+
+        tiempo_demora_barraca = 0
+        tiempo_demora_planta_mp = 0
+        tiempo_demora_planta_prod = 0
+
+        for demora in self.demoras:
+            if "fin" in demora:
+                duracion = demora["fin"] - demora["inicio"]
+                if demora["motivo"] == "barraca_pesaje_materia_prima":
+                    tiempo_demora_barraca += duracion
+                elif demora["motivo"] == "planta_pesaje_materia_prima":
+                    tiempo_demora_planta_mp += duracion
+                elif demora["motivo"] == "planta_pesaje_producto":
+                    tiempo_demora_planta_prod += duracion
+
+        tiempo_total_demora = tiempo_demora_barraca + tiempo_demora_planta_mp + tiempo_demora_planta_prod   
+    
         print(f"\n=== MÉTRICAS FINALES ===")
         print(f"Tiempo sin materia prima en planta: {self.tiempo_sin_materia_prima:.2f} min")
         print(f"Tiempo oscioso balanza barraca: {tiempo_oscioso_barraca:.2f} min")
         print(f"Tiempo oscioso balanza planta: {tiempo_oscioso_planta:.2f} min")
         print(f"Producciones realizadas: {self.producciones_realizadas}")
-        print(f"Materia prima consumida: {self.stock_planta_inicial - self.stock_planta + self.stock_barraca_inicial - self.stock_barraca:.1f} ton")
+        # print(f"Materia prima consumida: {self.stock_planta_inicial - self.stock_planta + self.stock_barraca_inicial - self.stock_barraca:.1f} ton")
         print(f"Stock final planta: {self.stock_planta:.2f} ton")
         print(f"Stock final barraca: {self.stock_barraca:.2f} ton")
         print(f"Producto terminado disponible: {self.producto_terminado_disponible:.1f} ton")
         print(f"Camiones libres al final: {len(self.camiones_libres)}")
+        print(f"Demora barraca pesaje materia prima: {tiempo_demora_barraca:.2f} min")
+        print(f"Demora planta pesaje materia prima: {tiempo_demora_planta_mp:.2f} min")
+        print(f"Demora planta pesaje producto terminado: {tiempo_demora_planta_prod:.2f} min") 
         
         self.metricas = {
             "producciones_realizadas": self.producciones_realizadas,
@@ -293,4 +354,8 @@ class Simulador:
             "porcentaje_osciosidad_mp": 100 * self.tiempo_sin_materia_prima / max(1, tiempo_oscioso_planta),
             "porcentaje_osciosidad_producto": 100 * (tiempo_oscioso_planta - self.tiempo_sin_materia_prima) / max(1, tiempo_oscioso_planta),
             "tiempo_oscioso_total": tiempo_oscioso_barraca + tiempo_oscioso_planta,
+            "tiempo_demora_barraca": tiempo_demora_barraca,
+            "tiempo_demora_planta_mp": tiempo_demora_planta_mp,
+            "tiempo_demora_planta_prod": tiempo_demora_planta_prod,
+            "tiempo_total_demora": tiempo_total_demora,
         }
